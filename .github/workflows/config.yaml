@@ -59,13 +59,27 @@ jobs:
     - name: Login to Amazon ECR
       id: ecr-login
       uses: aws-actions/amazon-ecr-login@v1
+      with:
+        registry: ${{ secrets.ECR_REGISTRY }}
+        region: ${{ secrets.AWS_DEFAULT_REGION }}
+        access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     
     - name: Build and tag Docker image
       run: |
         IMAGE_TAG=latest
-        docker buildx build --platform linux/amd64 -t 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/devops:$IMAGE_TAG .
+        docker buildx build --platform linux/amd64 -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
     
     - name: Push Docker image to Amazon ECR
       run: |
         IMAGE_TAG=latest
-        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/devops:$IMAGE_TAG
+        docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - name: Deploy application (Optional)
+      run: |
+        echo "Deploy steps here (e.g., updating ECS service, etc.)"
