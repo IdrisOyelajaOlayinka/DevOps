@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: yarn install
+    
+    - name: Run tests
+      run: yarn test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: yarn install
+    
+    - name: Build Next.js app
+      run: |
+        cd web
+        yarn build
+    
+    - name: Build Express server
+      run: |
+        cd api
+        yarn build
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to Amazon ECR
+      id: ecr-login
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build and tag Docker image
+      run: |
+        IMAGE_TAG=latest
+        docker buildx build --platform linux/amd64 -t 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/devops:$IMAGE_TAG .
+    
+    - name: Push Docker image to Amazon ECR
+      run: |
+        IMAGE_TAG=latest
+        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/devops:$IMAGE_TAG
