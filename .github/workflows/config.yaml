@@ -42,16 +42,9 @@ jobs:
     
     - name: Install dependencies
       run: yarn install
-    
-    - name: Build Next.js app
-      run: |
-        cd web
-        yarn build
-    
-    - name: Build Express server
-      run: |
-        cd api
-        yarn build
+
+    - name: Build app
+      run: yarn build
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
