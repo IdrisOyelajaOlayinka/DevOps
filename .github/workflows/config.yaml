@@ -78,8 +78,8 @@ jobs:
         API_ECR_URI=010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api
         
         # Tag Docker images
-        docker tag web:latest $WEB_ECR_URI:latest
-        docker tag api:latest $API_ECR_URI:latest
+        docker tag devops_web:latest $WEB_ECR_URI:latest
+        docker tag devops_api:latest $API_ECR_URI:latest
 
     - name: Push Docker images to ECR
       run: |
