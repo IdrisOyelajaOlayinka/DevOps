@@ -45,6 +45,9 @@ jobs:
     
     - name: Build Next.js app
       run: yarn build
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
@@ -55,16 +58,28 @@ jobs:
     
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
+      with:
+        region: ${{ secrets.AWS_DEFAULT_REGION }}
     
-    - name: Build and tag Docker image
+    - name: Build Docker images
       run: |
-        IMAGE_TAG=latest
-        docker buildx build --platform linux/amd64 -t ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-    
-    - name: Push Docker image to Amazon ECR
+        docker-compose -f docker-compose.yml build
+
+    - name: Tag Docker images
       run: |
-        IMAGE_TAG=latest
-        docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+        # Define ECR repository URIs
+        WEB_ECR_URI=010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/web
+        API_ECR_URI=010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api
+        
+        # Tag Docker images
+        docker tag web:latest $WEB_ECR_URI:latest
+        docker tag api:latest $API_ECR_URI:latest
+
+    - name: Push Docker images to ECR
+      run: |
+        # Push Docker images
+        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/web:latest
+        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api:latest
 
   deploy:
     runs-on: ubuntu-latest
