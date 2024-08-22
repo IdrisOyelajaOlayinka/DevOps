@@ -69,25 +69,20 @@ jobs:
     - name: Build Docker images
       run: |
         docker-compose -f docker-compose.yml build
-        docker images
 
     - name: Tag Docker images
-      run: |
-        # Define ECR repository URIs
-        WEB_ECR_URI=010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/web
-        API_ECR_URI=010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api
-        
+      run: |      
         # Tag Docker images
-        docker tag devops_web:latest $WEB_ECR_URI:latest
-        docker tag devops_api:latest $API_ECR_URI:latest
+        docker tag devops_web:latest 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/web:latest
+        docker tag devops_api:latest 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api:latest
 
     - name: Push Docker images to ECR
       run: |
         # Verify if images are tagged correctly
         docker images
         # Push Docker images
-        docker push $WEB_ECR_URI:latest
-        docker push $API_ECR_URI:latest
+        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/web:latest
+        docker push 010805383010.dkr.ecr.us-east-1.amazonaws.com/idrisoyelajaolayinka/api:latest
 
   deploy:
     runs-on: ubuntu-latest
